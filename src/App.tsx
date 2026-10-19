@@ -11,7 +11,7 @@ function App() {
 
   return (
     <main>
-      <h1>Optimistic rendering with React Query</h1>
+      <h1>Optimistic rendering with Tanstack Query</h1>
       <label>
         <input
           type="checkbox"
