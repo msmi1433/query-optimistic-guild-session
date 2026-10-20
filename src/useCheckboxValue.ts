@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getItem, patchItem, type Item } from "./api";
+import { getItem, patchItem, type CheckboxItem } from "./api";
 
 const itemQueryKey = (id: string) => ["item", id];
 
@@ -14,6 +14,7 @@ export const usePatchCheckboxValue = (id: string) => {
   return useMutation({
     mutationFn: patchItem,
     onSuccess: () => {
+      // Invalidate the query to ensure the UI is updated with the latest server state following mutation
       void queryClient.invalidateQueries({ queryKey: itemQueryKey(id) });
     },
   });
@@ -31,19 +32,23 @@ export const useOptimisticPatchCheckboxValue = (id: string) => {
       // Stop in-flight refetches overwriting the optimistic value.
       await queryClient.cancelQueries({ queryKey });
 
-      const previous = queryClient.getQueryData<Item>(queryKey);
+      // Snapshot the previous value before optimistically updating.
+      const previous = queryClient.getQueryData<CheckboxItem>(queryKey);
 
-      queryClient.setQueryData<Item>(queryKey, (prevValue) =>
+      // Optimistically update to the new value, causing re-render and UI update
+      queryClient.setQueryData<CheckboxItem>(queryKey, (prevValue) =>
         prevValue ? { ...prevValue, checked: payload.checked } : prevValue,
       );
 
+      // Return the snapshot as context so it can be used in onError to roll back.
       return { previous };
     },
     onError: (_error, _payload, context) => {
+      // Roll back to the previous value if the PATCH/mutation fails.
       queryClient.setQueryData(queryKey, context?.previous);
     },
-    // Runs on success and failure so the cache always ends up matching the server.
     onSettled: () => {
+      // Runs on success and failure so the cache always ends up matching the server.
       void queryClient.invalidateQueries({ queryKey });
     },
   });

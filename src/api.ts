@@ -2,11 +2,11 @@
 // Every call is delayed so the difference between optimistic and
 // non-optimistic rendering is easy to see.
 
-export type Item = { id: string; checked: boolean };
+export type CheckboxItem = { id: string; checked: boolean };
 
 const LATENCY_MS = 1500;
 
-const db = new Map<string, Item>([
+const db = new Map<string, CheckboxItem>([
   ["standard", { id: "standard", checked: false }],
   ["optimistic", { id: "optimistic", checked: false }],
   ["via-ui", { id: "via-ui", checked: false }],
@@ -21,7 +21,7 @@ export const setShouldFailPatch = (value: boolean) => {
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // GET /items/:id
-export const getItem = async (id: string): Promise<Item> => {
+export const getItem = async (id: string): Promise<CheckboxItem> => {
   await sleep(LATENCY_MS);
   const item = db.get(id);
   if (!item) throw new Error(`Item ${id} not found`);
@@ -29,7 +29,7 @@ export const getItem = async (id: string): Promise<Item> => {
 };
 
 // PATCH /items/:id  { checked }
-export const patchItem = async (payload: Item): Promise<void> => {
+export const patchItem = async (payload: CheckboxItem): Promise<void> => {
   await sleep(LATENCY_MS);
   if (shouldFailPatch) throw new Error("FAILED");
   if (!db.has(payload.id)) throw new Error(`Item ${payload.id} not found`);

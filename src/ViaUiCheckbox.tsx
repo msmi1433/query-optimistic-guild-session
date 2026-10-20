@@ -7,7 +7,7 @@ export const ViaUiCheckbox = () => {
   const { data, isLoading, isFetching } = useCheckboxValue(ID);
   const mutation = usePatchCheckboxValueViaUi(ID);
 
-  // No cache writes: show the in-flight mutation's value while it is pending.
+  // No cache writes: show the in-flight mutation's value/parameter while it is pending by using the variables object
   const checked = mutation.isPending
     ? mutation.variables.checked
     : (data?.checked ?? false);
